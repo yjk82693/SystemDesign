@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  publicId       String        @unique
+  firstName      String
+  lastName       String
+  email          String        @unique
+  password       String
+  jobRole        String        @default("Developer")
+  position       String        @default("USER")
+  dateOfBirth    String
+  dateRegistered DateTime      @default(now())
+  projects       Project[]     @relation("ProjectMembers")
+  assignedGames  Project[]     @relation("UserGames")
+  uploadedFiles  ProjectFile[]
+}
+
+model Project {
+  id            Int           @id @default(autoincrement())
+  name          String
+  description   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  users         User[]        @relation("ProjectMembers")
+  assignedUsers User[]        @relation("UserGames")
+  files         ProjectFile[]
+  assets        Asset[]
+}
+
+model ProjectFile {
+  id           Int      @id @default(autoincrement())
+  name         String
+  type         String
+  content      String?
+  url          String?
+  folder       String   @default("/")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  projectId    Int
+  project      Project  @relation(fields: [projectId], references: [id])
+  uploadedById Int
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+}
+
+model Asset {
+  id         Int      @id @default(autoincrement())
+  name       String
+  type       String
+  url        String
+  uploadedAt DateTime @default(now())
+  projectId  Int
+  project    Project  @relation(fields: [projectId], references: [id])
+}
