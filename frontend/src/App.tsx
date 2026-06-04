@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Setting from "./pages/Setting";
 
 import MainLayout from "./layouts/MainLayout";
 import UserTable from "./pages/admin/UserTable";
@@ -13,10 +14,14 @@ import type { User } from "./types";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      setAuthLoading(false);
+      return;
+    }
 
     fetch("http://localhost:5001/me", {
       headers: { Authorization: `Bearer ${token}` },
@@ -29,7 +34,8 @@ function App() {
       .catch(() => {
         localStorage.removeItem("token");
         setUser(null);
-      });
+      })
+      .finally(() => setAuthLoading(false));
   }, []);
 
   async function handleLogin(token: string) {
@@ -54,6 +60,8 @@ function App() {
 
   const isAdmin = user?.position === "ADMIN" || user?.position === "FOUNDER";
 
+  if (authLoading) return null;
+
   return (
     <BrowserRouter>
       <Routes>
@@ -77,10 +85,9 @@ function App() {
             <Route path="/chat" element={<div style={{ padding: 24 }}>Group Chat — coming soon</div>} />
             <Route path="/resources" element={<div style={{ padding: 24 }}>Resources — coming soon</div>} />
             <Route path="/guides" element={<div style={{ padding: 24 }}>Guide Videos — coming soon</div>} />
-            <Route path="/profile" element={<div style={{ padding: 24 }}>User Profile — coming soon</div>} />
 
             {/* Settings */}
-            <Route path="/settings" element={<div style={{ padding: 24 }}>Settings — coming soon</div>} />
+            <Route path="/settings" element={<Setting />} />
 
             {/* Admin Routes */}
             <Route

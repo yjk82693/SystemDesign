@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-key";
 
 export const register = async (req: Request, res: Response) => {
     try {
-        const { firstName, lastName, email, password, jobRole, dateOfBirth } = req.body;
+        const { firstName, lastName, email, password, jobRole, phone, dateOfBirth } = req.body;
 
         if (!firstName || !lastName || !email || !password || !jobRole || !dateOfBirth) {
             return res.status(400).json({ message: "Missing fields" });
@@ -43,6 +43,7 @@ export const register = async (req: Request, res: Response) => {
                 password: hashed,
                 jobRole,
                 position: "USER",
+                phone: phone || null,
                 dateOfBirth,
             }
         });
@@ -109,9 +110,57 @@ export const getMe = async (req: Request, res: Response) => {
             email: user.email,
             jobRole: user.jobRole,
             position: user.position,
+            phone: user.phone,
             assignedGames: user.assignedGames,
         });
     } catch (err) {
         return res.status(401).json({ message: "Invalid token" });
+    }
+};
+
+export const updateMe = async (req: Request, res: Response) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "No token" });
+
+    const token = authHeader.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "No token" });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as any;
+        const { firstName, lastName, email, phone } = req.body;
+
+        if (email) {
+            const existing = await prisma.user.findUnique({ where: { email } });
+            if (existing && existing.publicId !== decoded.publicId) {
+                return res.status(409).json({ message: "Email already in use" });
+            }
+        }
+
+        const user = await prisma.user.update({
+            where: { publicId: decoded.publicId },
+            data: {
+                ...(firstName && { firstName }),
+                ...(lastName && { lastName }),
+                ...(email && { email }),
+                ...(phone !== undefined && { phone }),
+            },
+            include: {
+                assignedGames: { select: { id: true, name: true } }
+            }
+        });
+
+        res.json({
+            id: user.id,
+            publicId: user.publicId,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            jobRole: user.jobRole,
+            position: user.position,
+            phone: user.phone,
+            assignedGames: user.assignedGames,
+        });
+    } catch (err) {
+        return res.status(500).json({ message: "Failed to update profile" });
     }
 };

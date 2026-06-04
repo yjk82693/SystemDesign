@@ -20,7 +20,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
             }
         });
 
-        const mappedUsers = users.map(u => ({
+        const mappedUsers = users.map((u: typeof users[0]) => ({
             ...u,
             name: `${u.firstName} ${u.lastName}`,
         }));

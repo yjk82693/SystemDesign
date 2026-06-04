@@ -16,6 +16,7 @@ model User {
   password       String
   jobRole        String        @default("Developer")
   position       String        @default("USER")
+  phone          String?       // ← add this
   dateOfBirth    String
   dateRegistered DateTime      @default(now())
   projects       Project[]     @relation("ProjectMembers")

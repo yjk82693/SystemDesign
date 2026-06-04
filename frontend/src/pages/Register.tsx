@@ -54,6 +54,10 @@ export default function Register() {
             <Input />
           </Form.Item>
 
+          <Form.Item name="phone" label="Phone Number">
+              <Input placeholder="e.g. +82 10-1234-5678" />
+          </Form.Item>
+
           <Form.Item
             name="password"
             label="Password"
