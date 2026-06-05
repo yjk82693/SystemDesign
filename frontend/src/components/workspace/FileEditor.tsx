@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Spin, Button, Tooltip, message } from 'antd';
+import { Spin, Button, Tooltip, message, Modal, Input } from 'antd';
 import { FileOutlined, LoadingOutlined, SaveOutlined } from '@ant-design/icons';
 import Editor from '@monaco-editor/react';
 import type { FileWithContent } from './workspaceTypes';
@@ -7,19 +7,21 @@ import { getLanguage } from './workspaceUtils';
 
 interface Props {
     selectedFile: FileWithContent | null;
+    projectId: number | null;
     onFileSaved: () => void;
 }
 
-const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
+const FileEditor: React.FC<Props> = ({ selectedFile, projectId, onFileSaved }) => {
     const [editorContent, setEditorContent] = useState('');
     const [hasChanges, setHasChanges] = useState(false);
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(false);
     const [fileData, setFileData] = useState<FileWithContent | null>(null);
+    const [commitModal, setCommitModal] = useState(false);
+    const [commitMessage, setCommitMessage] = useState('');
     const originalContentRef = useRef<string>('');
     const token = localStorage.getItem('token');
 
-    // Load file content when selectedFile changes
     useEffect(() => {
         if (!selectedFile) {
             setFileData(null);
@@ -65,11 +67,21 @@ const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
         setHasChanges(newVal !== originalContentRef.current);
     };
 
-    const handleSave = async () => {
-        if (!fileData || fileData.type !== 'CODE') return;
+    // ── Step 1: open commit message modal ──
+    const handleSaveClick = () => {
+        setCommitMessage('');
+        setCommitModal(true);
+    };
+
+    // ── Step 2: save file + create commit ──
+    const handleConfirmSave = async () => {
+        if (!fileData || !commitMessage.trim()) return;
         setSaving(true);
+        setCommitModal(false);
+
         try {
-            const res = await fetch(`http://localhost:5001/files/${fileData.id}`, {
+            // 1. Save file content
+            const saveRes = await fetch(`http://localhost:5001/files/${fileData.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,14 +89,34 @@ const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
                 },
                 body: JSON.stringify({ content: editorContent }),
             });
-            if (res.ok) {
-                message.success('File saved');
-                originalContentRef.current = editorContent;
-                setHasChanges(false);
-                onFileSaved();
-            } else {
-                message.error('Failed to save');
+
+            if (!saveRes.ok) {
+                message.error('Failed to save file');
+                return;
             }
+
+            // 2. Create commit record
+            if (projectId) {
+                await fetch('http://localhost:5001/commits', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        fileId: fileData.id,
+                        projectId,
+                        message: commitMessage.trim(),
+                        content: editorContent,
+                    }),
+                });
+            }
+
+            message.success('Saved & committed!');
+            originalContentRef.current = editorContent;
+            setHasChanges(false);
+            setCommitMessage('');
+            onFileSaved();
         } catch {
             message.error('Server error');
         } finally {
@@ -92,12 +124,12 @@ const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
         }
     };
 
-    // Cmd+S / Ctrl+S
+    // ── Cmd+S / Ctrl+S ──
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 's') {
                 e.preventDefault();
-                if (hasChanges) handleSave();
+                if (hasChanges) handleSaveClick();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -106,6 +138,7 @@ const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
 
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+
             {/* Tab bar */}
             {fileData && (
                 <div style={{
@@ -124,12 +157,12 @@ const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
                         )}
                     </div>
                     {fileData.type === 'CODE' && hasChanges && (
-                        <Tooltip title="Save (⌘S)">
+                        <Tooltip title="Save & Commit (⌘S)">
                             <Button
                                 type="primary" size="small"
                                 icon={<SaveOutlined />}
                                 loading={saving}
-                                onClick={handleSave}
+                                onClick={handleSaveClick}
                             >
                                 Save
                             </Button>
@@ -201,6 +234,29 @@ const FileEditor: React.FC<Props> = ({ selectedFile, onFileSaved }) => {
                     </div>
                 )}
             </div>
+
+            {/* ── Commit message modal ── */}
+            <Modal
+                title="Save & Commit"
+                open={commitModal}
+                onOk={handleConfirmSave}
+                onCancel={() => setCommitModal(false)}
+                okText="Save & Commit"
+                okButtonProps={{ disabled: !commitMessage.trim() }}
+            >
+                <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: 13, color: '#595959', marginBottom: 8 }}>
+                        Describe what you changed in <strong>{fileData?.name}</strong>:
+                    </div>
+                    <Input.TextArea
+                        rows={3}
+                        placeholder="e.g. Fixed loop bug in player movement, Updated dragon sprite colors..."
+                        value={commitMessage}
+                        onChange={e => setCommitMessage(e.target.value)}
+                        autoFocus
+                    />
+                </div>
+            </Modal>
         </div>
     );
 };

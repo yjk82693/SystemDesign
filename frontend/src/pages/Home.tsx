@@ -84,6 +84,7 @@ export default function Home() {
             />
             <FileEditor
                 selectedFile={selectedFile}
+                projectId={selectedProject?.id ?? null}
                 onFileSaved={() => selectedProject && refreshFiles(selectedProject.id)}
             />
         </div>

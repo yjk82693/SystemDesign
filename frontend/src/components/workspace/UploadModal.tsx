@@ -31,9 +31,11 @@ const UploadModal: React.FC<Props> = ({ open, projectId, onClose, onUploaded }) 
 
                         const type = getFileType(file.name);
                         const reader = new FileReader();
+
                         reader.onload = async (e) => {
                             const url = e.target?.result as string;
                             try {
+                                // 1. Upload file
                                 const res = await fetch('http://localhost:5001/files/upload', {
                                     method: 'POST',
                                     headers: {
@@ -48,7 +50,25 @@ const UploadModal: React.FC<Props> = ({ open, projectId, onClose, onUploaded }) 
                                         folder: '/',
                                     }),
                                 });
+
                                 if (res.ok) {
+                                    const uploadedFile = await res.json();
+
+                                    // 2. Create commit
+                                    await fetch('http://localhost:5001/commits', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            Authorization: `Bearer ${token}`,
+                                        },
+                                        body: JSON.stringify({
+                                            fileId: uploadedFile.id,
+                                            projectId,
+                                            message: `Uploaded ${file.name}`,
+                                            url,
+                                        }),
+                                    });
+
                                     message.success(`${file.name} uploaded`);
                                     onUploaded();
                                     onClose();
@@ -59,7 +79,8 @@ const UploadModal: React.FC<Props> = ({ open, projectId, onClose, onUploaded }) 
                                 message.error('Server error');
                             }
                         };
-                        reader.readAsDataURL(file);
+
+                        reader.readAsDataURL(file); // ← was missing!
                     }}
                 >
                     <p className="ant-upload-drag-icon"><UploadOutlined /></p>

@@ -11,6 +11,7 @@ import MainLayout from "./layouts/MainLayout";
 import UserTable from "./pages/admin/UserTable";
 import ProjectTable from "./pages/admin/ProjectTable";
 import type { User } from "./types";
+import Feedback from "./pages/Feedback";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -81,7 +82,7 @@ function App() {
             <Route path="/dashboard" element={<Home />} />
 
             {/* Feature pages (placeholders) */}
-            <Route path="/feedback" element={<div style={{ padding: 24 }}>Feedback — coming soon</div>} />
+            <Route path="/feedback" element={<Feedback />} />
             <Route path="/chat" element={<div style={{ padding: 24 }}>Group Chat — coming soon</div>} />
             <Route path="/resources" element={<div style={{ padding: 24 }}>Resources — coming soon</div>} />
             <Route path="/guides" element={<div style={{ padding: 24 }}>Guide Videos — coming soon</div>} />

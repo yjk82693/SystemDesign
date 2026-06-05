@@ -16,12 +16,14 @@ model User {
   password       String
   jobRole        String        @default("Developer")
   position       String        @default("USER")
-  phone          String?       // ← add this
+  phone          String?
   dateOfBirth    String
   dateRegistered DateTime      @default(now())
   projects       Project[]     @relation("ProjectMembers")
   assignedGames  Project[]     @relation("UserGames")
   uploadedFiles  ProjectFile[]
+  commits        Commit[]
+  comments       Comment[]
 }
 
 model Project {
@@ -34,6 +36,7 @@ model Project {
   assignedUsers User[]        @relation("UserGames")
   files         ProjectFile[]
   assets        Asset[]
+  commits       Commit[]
 }
 
 model ProjectFile {
@@ -49,6 +52,44 @@ model ProjectFile {
   project      Project  @relation(fields: [projectId], references: [id])
   uploadedById Int
   uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  commits      Commit[]
+}
+
+model Commit {
+  id          Int       @id @default(autoincrement())
+  message     String
+  fileType    String    // CODE, IMAGE, PDF, DOC
+  fileName    String
+  content     String?   // for CODE files
+  url         String?   // for IMAGE/PDF/DOC files
+  createdAt   DateTime  @default(now())
+
+  projectId   Int
+  project     Project     @relation(fields: [projectId], references: [id])
+
+  fileId      Int
+  file        ProjectFile @relation(fields: [fileId], references: [id])
+
+  authorId    Int
+  author      User        @relation(fields: [authorId], references: [id])
+
+  comments    Comment[]
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  createdAt DateTime  @default(now())
+
+  commitId  Int
+  commit    Commit    @relation(fields: [commitId], references: [id])
+
+  authorId  Int
+  author    User      @relation(fields: [authorId], references: [id])
+
+  parentId  Int?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
 }
 
 model Asset {
