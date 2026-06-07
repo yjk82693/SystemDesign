@@ -16,13 +16,14 @@ const ResourceTopBar: React.FC<Props> = ({ search, onSearch, viewMode, onViewCha
             display: 'flex', gap: 12, marginBottom: 16,
             alignItems: 'center', flexWrap: 'wrap',
         }}>
-            <Input
-                prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+            <Input.Search
                 placeholder="Search resources..."
-                style={{ width: 280 }}
+                style={{ width: 320 }}
                 value={search}
                 onChange={e => onSearch(e.target.value)}
+                onSearch={onSearch}
                 allowClear
+                enterButton
             />
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
                 <Tooltip title="Grid view">

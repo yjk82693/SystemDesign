@@ -28,7 +28,7 @@ export default function Resources() {
         if (selectedCategory) fetchResources(selectedCategory.id);
         setSelectedFolder(null);
         setPage(1);
-    }, [selectedCategory, search]);
+    }, [selectedCategory]);
 
     const fetchCategories = async () => {
         setLoading(true);
@@ -45,11 +45,12 @@ export default function Resources() {
         }
     };
 
-    const fetchResources = async (categoryId: number) => {
+    const fetchResources = async (categoryId: number, searchVal?: string) => {
         setLoading(true);
         try {
             const params = new URLSearchParams({ categoryId: String(categoryId) });
-            if (search) params.append('search', search);
+            const s = searchVal !== undefined ? searchVal : search;
+            if (s) params.append('search', s);
 
             const res = await fetch(`http://localhost:5001/resources?${params}`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -66,11 +67,15 @@ export default function Resources() {
     const handleSearch = (val: string) => {
         setSearch(val);
         setPage(1);
+        if (selectedCategory) {
+            fetchResources(selectedCategory.id, val);
+        }
     };
 
     const handleCategorySelect = (cat: Category) => {
         setSelectedCategory(cat);
         setResources([]);
+        setSearch('');
     };
 
     const handleBackToRoot = () => {
@@ -86,20 +91,24 @@ export default function Resources() {
         setPage(1);
     };
 
+    // Filter categories at root level
+    const displayedCategories = search
+        ? categories.filter(c =>
+            c.name.toLowerCase().includes(search.toLowerCase()) ||
+            c.description?.toLowerCase().includes(search.toLowerCase())
+        )
+        : categories;
+
     // Get unique folders in current category
     const folders = selectedCategory
-        ? Array.from(new Set(resources.filter(r => r.folder).map(r => r.folder as string))).sort()
+        ? Array.from(new Set(
+            resources.filter(r => r.folder).map(r => r.folder as string)
+        )).sort()
         : [];
 
-    // Filter resources by folder and search
+    // Filter resources by folder
     const getDisplayedResources = () => {
         let filtered = resources;
-        if (search) {
-            filtered = filtered.filter(r =>
-                r.name.toLowerCase().includes(search.toLowerCase()) ||
-                r.description?.toLowerCase().includes(search.toLowerCase())
-            );
-        }
         if (selectedFolder) {
             filtered = filtered.filter(r => r.folder === selectedFolder);
         } else {
@@ -133,14 +142,12 @@ export default function Resources() {
                     <Spin />
                 </div>
             ) : !selectedCategory ? (
-                // ── Root: show categories ──
                 <CategoryGrid
-                    categories={categories}
+                    categories={displayedCategories}
                     viewMode={viewMode}
                     onSelect={handleCategorySelect}
                 />
             ) : (
-                // ── Inside category ──
                 <>
                     {!selectedFolder && (
                         <FolderGrid
@@ -151,7 +158,6 @@ export default function Resources() {
                         />
                     )}
 
-                    {/* Section label */}
                     {!selectedFolder && folders.length > 0 && pagedResources.length > 0 && (
                         <div style={{
                             fontSize: 11, color: '#8c8c8c', marginBottom: 8,
@@ -161,12 +167,8 @@ export default function Resources() {
                         </div>
                     )}
 
-                    <ResourceGrid
-                        resources={pagedResources}
-                        viewMode={viewMode}
-                    />
+                    <ResourceGrid resources={pagedResources} viewMode={viewMode} />
 
-                    {/* Pagination */}
                     {totalPages > 1 && (
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
                             <Button disabled={page === 1} onClick={() => setPage(p => p - 1)}>← Prev</Button>
