@@ -6,6 +6,7 @@ import adminRoutes from "./routes/adminRoutes";
 import projectRoutes from "./routes/projectRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import commitRoutes from "./routes/commitRoutes";
+import resourceRoutes from "./routes/resourceRoutes";
 
 dotenv.config();
 
@@ -29,6 +30,8 @@ app.use("/admin", adminRoutes);  // /admin/users, /admin/promote
 app.use("/projects", projectRoutes); // /projects
 app.use("/files", fileRoutes);   // /files/project/:id, /files/:id, etc.
 app.use("/commits", commitRoutes);
+app.use("/resources", resourceRoutes);
+
 
 app.listen(5001, () => {
   console.log("Server running on http://localhost:5001");

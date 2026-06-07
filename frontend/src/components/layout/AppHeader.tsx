@@ -17,7 +17,6 @@ const PAGE_TITLES: Record<string, string> = {
     '/feedback': 'Feedback',
     '/chat': 'Group Chat',
     '/resources': 'Resources',
-    '/guides': 'Guides',
     '/settings': 'Settings',
     '/profile': 'User Profile',
 };
@@ -27,7 +26,6 @@ const NAV_TABS = [
     { key: '/feedback', label: 'Feedback' },
     { key: '/chat', label: 'Group Chat' },
     { key: '/resources', label: 'Resources' },
-    { key: '/guides', label: 'Guides' },
 ];
 
 const AppHeader: React.FC<AppHeaderProps> = ({ onLogout, user }) => {

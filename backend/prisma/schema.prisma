@@ -24,6 +24,7 @@ model User {
   uploadedFiles  ProjectFile[]
   commits        Commit[]
   comments       Comment[]
+  resources      Resource[]
 }
 
 model Project {
@@ -56,23 +57,19 @@ model ProjectFile {
 }
 
 model Commit {
-  id          Int       @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   message     String
-  fileType    String    // CODE, IMAGE, PDF, DOC
+  fileType    String
   fileName    String
-  content     String?   // for CODE files
-  url         String?   // for IMAGE/PDF/DOC files
-  createdAt   DateTime  @default(now())
-
+  content     String?
+  url         String?
+  createdAt   DateTime    @default(now())
   projectId   Int
   project     Project     @relation(fields: [projectId], references: [id])
-
   fileId      Int
   file        ProjectFile @relation(fields: [fileId], references: [id])
-
   authorId    Int
   author      User        @relation(fields: [authorId], references: [id])
-
   comments    Comment[]
 }
 
@@ -80,16 +77,36 @@ model Comment {
   id        Int       @id @default(autoincrement())
   content   String
   createdAt DateTime  @default(now())
-
   commitId  Int
   commit    Commit    @relation(fields: [commitId], references: [id])
-
   authorId  Int
   author    User      @relation(fields: [authorId], references: [id])
-
   parentId  Int?
   parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies   Comment[] @relation("CommentReplies")
+}
+
+model ResourceCategory {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  resources   Resource[]
+}
+
+model Resource {
+  id           Int              @id @default(autoincrement())
+  name         String
+  description  String?
+  type         String           // FILE or LINK
+  fileType     String?          // PDF, IMAGE, DOC, VIDEO (for FILE type)
+  url          String           // file url or external link
+  folder       String?          // optional sub-group within category
+  createdAt    DateTime         @default(now())
+  categoryId   Int
+  category     ResourceCategory @relation(fields: [categoryId], references: [id])
+  createdById  Int
+  createdBy    User             @relation(fields: [createdById], references: [id])
 }
 
 model Asset {

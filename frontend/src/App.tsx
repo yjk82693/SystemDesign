@@ -12,6 +12,8 @@ import UserTable from "./pages/admin/UserTable";
 import ProjectTable from "./pages/admin/ProjectTable";
 import type { User } from "./types";
 import Feedback from "./pages/Feedback";
+import Resources from "./pages/Resources";
+import ResourceManager from "./pages/admin/ResourceManager";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -84,8 +86,7 @@ function App() {
             {/* Feature pages (placeholders) */}
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/chat" element={<div style={{ padding: 24 }}>Group Chat — coming soon</div>} />
-            <Route path="/resources" element={<div style={{ padding: 24 }}>Resources — coming soon</div>} />
-            <Route path="/guides" element={<div style={{ padding: 24 }}>Guide Videos — coming soon</div>} />
+            <Route path="/resources" element={<Resources />} />
 
             {/* Settings */}
             <Route path="/settings" element={<Setting />} />
@@ -98,6 +99,10 @@ function App() {
             <Route
               path="/admin/projects"
               element={isAdmin ? <ProjectTable /> : <Navigate to="/dashboard" />}
+            />
+            <Route
+                path="/admin/resources"
+                element={isAdmin ? <ResourceManager /> : <Navigate to="/dashboard" />}
             />
 
             <Route path="*" element={<Navigate to="/dashboard" />} />

@@ -3,7 +3,7 @@ import { Layout, Menu } from 'antd';
 import {
     DashboardOutlined, SettingOutlined, LogoutOutlined,
     LeftOutlined, RightOutlined, TeamOutlined, ProjectOutlined,
-    MessageOutlined, BookOutlined, PlayCircleOutlined, CommentOutlined,
+    MessageOutlined, BookOutlined, CommentOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -27,32 +27,32 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ onLogout, userRole }) => {
         }
     };
 
-    const menuItems: any[] = [
-        { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-        { type: 'divider' },
-        {
-            key: 'features',
-            icon: <ProjectOutlined />,
-            label: 'Features',
-            children: [
-                { key: '/feedback', icon: <MessageOutlined />, label: 'Feedback' },
-                { key: '/chat', icon: <CommentOutlined />, label: 'Group Chat' },
-                { key: '/resources', icon: <BookOutlined />, label: 'Resources' },
-                { key: '/guides', icon: <PlayCircleOutlined />, label: 'Guides' },
-            ],
-        },
-        { type: 'divider' },
-        ...((['ADMIN', 'FOUNDER'].includes(userRole || '')) ? [{
-            key: 'admin',
-            icon: <TeamOutlined />,
-            label: 'Admin',
-            children: [
-                { key: '/admin/users', icon: <TeamOutlined />, label: 'User Management' },
-                { key: '/admin/projects', icon: <ProjectOutlined />, label: 'Projects' },
-            ],
-        }] : []),
-        { key: '/settings', icon: <SettingOutlined />, label: 'Settings' },
-    ];
+const menuItems: any[] = [
+    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+    { type: 'divider' },
+    {
+        key: 'features',
+        icon: <ProjectOutlined />,
+        label: 'Features',
+        children: [
+            { key: '/feedback', icon: <MessageOutlined />, label: 'Feedback' },
+            { key: '/chat', icon: <CommentOutlined />, label: 'Group Chat' },
+            { key: '/resources', icon: <BookOutlined />, label: 'Resources' },
+        ],
+    },
+    { type: 'divider' },
+    ...((['ADMIN', 'FOUNDER'].includes(userRole || '')) ? [{
+        key: 'admin',
+        icon: <TeamOutlined />,
+        label: 'Admin',
+        children: [
+            { key: '/admin/users', icon: <TeamOutlined />, label: 'User Management' },
+            { key: '/admin/projects', icon: <ProjectOutlined />, label: 'Projects' },
+            { key: '/admin/resources', icon: <BookOutlined />, label: 'Resources' },
+        ],
+    }] : []),
+    { key: '/settings', icon: <SettingOutlined />, label: 'Settings' },
+];
 
     return (
         <Sider
