@@ -7,6 +7,7 @@ import projectRoutes from "./routes/projectRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import commitRoutes from "./routes/commitRoutes";
 import resourceRoutes from "./routes/resourceRoutes";
+import chatRoutes from "./routes/chatRoutes";
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ app.use("/projects", projectRoutes); // /projects
 app.use("/files", fileRoutes);   // /files/project/:id, /files/:id, etc.
 app.use("/commits", commitRoutes);
 app.use("/resources", resourceRoutes);
-
+app.use("/chat", chatRoutes);
 
 app.listen(5001, () => {
   console.log("Server running on http://localhost:5001");

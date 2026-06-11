@@ -25,6 +25,10 @@ model User {
   commits        Commit[]
   comments       Comment[]
   resources      Resource[]
+  chatRooms      ChatRoom[]    @relation("ChatRoomMembers")
+  messages       Message[]
+  friendsAdded   Friendship[]  @relation("FriendshipUser")
+  friendsReceived Friendship[] @relation("FriendshipFriend")
 }
 
 model Project {
@@ -98,15 +102,46 @@ model Resource {
   id           Int              @id @default(autoincrement())
   name         String
   description  String?
-  type         String           // FILE or LINK
-  fileType     String?          // PDF, IMAGE, DOC, VIDEO (for FILE type)
-  url          String           // file url or external link
-  folder       String?          // optional sub-group within category
+  type         String
+  fileType     String?
+  url          String
+  folder       String?
   createdAt    DateTime         @default(now())
   categoryId   Int
   category     ResourceCategory @relation(fields: [categoryId], references: [id])
   createdById  Int
   createdBy    User             @relation(fields: [createdById], references: [id])
+}
+
+model ChatRoom {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  type      String    @default("GROUP") // DM or GROUP
+  createdAt DateTime  @default(now())
+  members   User[]    @relation("ChatRoomMembers")
+  messages  Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  createdAt  DateTime @default(now())
+  authorId   Int
+  author     User     @relation(fields: [authorId], references: [id])
+  chatRoomId Int
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+}
+
+model Friendship {
+  id        Int      @id @default(autoincrement())
+  status    String   @default("PENDING") // PENDING or ACCEPTED
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation("FriendshipUser", fields: [userId], references: [id])
+  friendId  Int
+  friend    User     @relation("FriendshipFriend", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId])
 }
 
 model Asset {

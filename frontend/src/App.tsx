@@ -14,6 +14,7 @@ import type { User } from "./types";
 import Feedback from "./pages/Feedback";
 import Resources from "./pages/Resources";
 import ResourceManager from "./pages/admin/ResourceManager";
+import Chat from "./pages/Chat";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -85,7 +86,7 @@ function App() {
 
             {/* Feature pages (placeholders) */}
             <Route path="/feedback" element={<Feedback />} />
-            <Route path="/chat" element={<div style={{ padding: 24 }}>Group Chat — coming soon</div>} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/resources" element={<Resources />} />
 
             {/* Settings */}
