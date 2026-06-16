@@ -1,73 +1,205 @@
-# React + TypeScript + Vite
+# Studio OS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An internal company management system for game development studios. Built as a full-stack web application with a VS Code-style workspace, team communication, feedback system, and resource library.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
 
-## React Compiler
+**Frontend**
+- React + TypeScript + Vite
+- Ant Design (UI components)
+- Monaco Editor (VS Code-style code editor)
+- React Router DOM
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Backend**
+- Node.js + Express + TypeScript
+- Prisma ORM + SQLite (prototype)
+- JWT Authentication
+- bcryptjs (password hashing)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Workspace (Dashboard)
+- VS Code-style file tree with folder support
+- Monaco editor for code files
+- Image, PDF, and document preview
+- File drag-and-drop between folders
+- Create, upload, rename, and delete files
+- Commit system — every save creates a commit record with a message
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Feedback
+- Company-wide commit feed across all projects
+- Filter by project and file type
+- Click any commit to view file content (code, image, PDF)
+- Threaded comments with replies on each commit
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Group Chat
+- Slack-style messaging interface
+- Group rooms and direct messages
+- 300 character message limit
+- Polling-based real-time updates (every 3 seconds)
+
+### Resources
+- Company knowledge base organized by topic categories
+- Folder navigation within categories
+- Supports files (PDF, image, video, doc) and external links
+- Search with filter
+- Grid and list view toggle
+- Admin-managed (upload/edit/delete)
+
+### User Management (Admin)
+- View all company members
+- Edit job roles with track hierarchy (Developer → Lead Developer → Dev Director)
+- Switch job tracks with required reason
+- Assign users to multiple game projects
+- Promote to Admin or Founder
+
+### Project Management (Admin)
+- Create and manage game projects
+- Assign members to projects
+- Track file counts per project
+
+### Settings / Profile
+- Avatar with initials and color based on user ID
+- Edit name, email, phone number
+- View participating projects
+- Save button appears only when changes are detected
+
+---
+
+## Project Structure
+
+```
+SystemDesign/
+├── frontend/                  # React + TypeScript + Vite
+│   └── src/
+│       ├── components/
+│       │   ├── chat/          # Chat sidebar, window, header
+│       │   ├── feedback/      # Commit detail and comments
+│       │   ├── resources/     # Category grid, folder grid, resource grid
+│       │   └── workspace/     # File tree, editor, modals
+│       ├── layouts/           # Main layout, sidebar, header
+│       ├── pages/             # Route-level page components
+│       │   └── admin/         # Admin-only pages
+│       └── types.ts
+│
+└── backend/                   # Node.js + Express + TypeScript
+    └── src/
+        ├── controllers/       # Business logic
+        ├── middleware/        # Auth, validation
+        ├── routes/            # API route definitions
+        └── utils/             # ID generator, helpers
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+- Node.js 18+
+- npm
+
+### Installation
+
+```bash
+# Clone the repo
+git clone <your-repo-url>
+cd SystemDesign
+
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
 ```
+
+### Database Setup
+
+```bash
+cd backend
+npx prisma migrate dev
+npx prisma generate
+```
+
+### Running the App
+
+```bash
+# Terminal 1 — Backend (port 5001)
+cd backend
+npm run dev
+
+# Terminal 2 — Frontend (port 5173)
+cd frontend
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173)
+
+---
+
+## Environment Variables
+
+Create `backend/.env`:
+
+```env
+JWT_SECRET=your-secret-key
+DATABASE_URL=file:./dev.db
+```
+
+---
+
+## Test Accounts
+
+| Role    | Public ID  | Password          |
+|---------|------------|-------------------|
+| Admin   | `ejk0522`  | `CompanyOwner12!` |
+| User    | `lvk5123`  | `LunaKim12!`      |
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/register` | Register new user |
+| POST | `/login` | Login |
+| GET | `/me` | Get current user |
+| PATCH | `/me` | Update profile |
+| GET | `/projects` | Get user's projects |
+| GET | `/files/project/:id` | Get project files |
+| POST | `/files/code` | Create code file |
+| PUT | `/files/:id` | Update file content |
+| PATCH | `/files/:id/move` | Move file to folder |
+| DELETE | `/files/:id` | Delete file |
+| GET | `/commits` | Get all commits |
+| POST | `/commits` | Create commit |
+| POST | `/commits/:id/comments` | Add comment |
+| GET | `/resources` | Get resources |
+| GET | `/resources/categories` | Get categories |
+| GET | `/chat/rooms` | Get chat rooms |
+| POST | `/chat/rooms` | Create group room |
+| POST | `/chat/rooms/dm` | Create DM |
+| POST | `/chat/rooms/:id/messages` | Send message |
+| GET | `/admin/users` | Get all users (admin) |
+| POST | `/admin/assign-game` | Assign games to user |
+
+---
+
+## Roadmap
+
+- [ ] Forgot password email flow
+- [ ] Announcements / dashboard board
+- [ ] Real-time chat with Socket.io
+- [ ] File storage migration (SQLite → PostgreSQL + S3)
+- [ ] Diff view for code commits
+
+---
+
+## Author
+
+Yoojun Kim — Penn State CS + Mathematics
