@@ -46,7 +46,7 @@
 
 ## 4. Technical Debt & TODOs
 **Critical:**
-- [ ] **Hardcoded Secret:** `JWT_SECRET` falls back to `"dev-secret-key"` in `server.ts`. Move this to a strictly required `.env` variable.
+- [x] **Hardcoded Secret:** `JWT_SECRET` is now a required `.env` variable, read once in `backend/src/config.ts` (no fallback).
 - [ ] **Missing Tables:** The `IPs` and `Projects` tables mentioned in requirements are completely absent from the database schema.
 - [ ] **Monolithic Server:** `server.ts` contains all logic. Refactor into `routes/` and `controllers/` as the app grows.
 

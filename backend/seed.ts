@@ -3,11 +3,11 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { JWT_SECRET } from './src/config';
 
 dotenv.config();
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-key";
 
 async function main() {
     console.log('Seeding database...');

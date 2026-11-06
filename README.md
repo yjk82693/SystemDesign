@@ -151,6 +151,8 @@ JWT_SECRET=your-secret-key
 DATABASE_URL=file:./dev.db
 ```
 
+Copy `backend/.env.example` to `backend/.env` and fill in the values. `JWT_SECRET` is required: the backend stops at startup with an error if it is missing (there is no built-in default).
+
 ---
 
 ## Test Accounts
